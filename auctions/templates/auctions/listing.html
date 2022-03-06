@@ -1,0 +1,59 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h1>{{ l.title }}</h1>
+    <dev>
+        {% if listing.image is not None %}
+            <img src="{{ l.image }}">
+        {% endif %}
+    </dev>
+    {% if l.last_bid is None %}
+        <h4>Price: {{ l.price }}</h4>
+    {% else %}
+        <h4>Last Bid: {{ l.last_bid }}</h4>
+    {% endif %}
+    <h5>Description: {{ l.description }}</h5>
+    <h6>Category: {{ l.category }}</h6>
+
+    {% if l.status == True %}
+        <form action="{% url 'watchlist' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" value="{{ l.id }}" name="listing">
+            <input type="submit" value="Add to Watchlist">
+        </form>
+        {% if l.owner.id == request.user.id %}
+            <form action="{% url 'close' %}">
+                {% csrf_token %}
+                <input type="hidden" value="{{ l.id }}" name="listing">
+                <input type="submit" value="Close the Auction">
+            </form>
+        {% else %}
+            <form action="{% url 'bid' %}">
+                {% csrf_token %}
+                <input type="hidden" value="{{ l.id }}" name="listing">
+                <input type="number" placeholder="Your Bid" name="bid">
+                <input type="submit" value="Bid">
+            </form>
+        {% endif %}
+    {% else %}
+        {% if request.user.id == l.bidder.id %}
+            <h2>You've won the auction!</h2>
+        {% endif %}
+    {% endif %}
+
+    <form action="{% url 'comment' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" value="{{ l.id }}" name="listing">
+        <div>
+            <textarea placeholder="Your comment" name="comment" maxlength="1000" cols="50" rows="7"></textarea>
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+
+    {% for comment in comments %}
+        {% if comment.listing.id == l.id %}
+            <h4>{{ comment.user }}</h4>
+            <dev>{{ comment.comment }}</dev>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

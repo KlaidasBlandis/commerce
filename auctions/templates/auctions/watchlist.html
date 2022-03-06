@@ -1,0 +1,30 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+    <h1>Your Watchlist</h1>
+    {% for listing in listings %}
+        {% if listing.wlister == request.user %}
+            <a href="{% url 'listing' listing.id %}">
+                <h1>{{ listing.title }}</h1>
+                <dev>
+                    {% if listing.image is not None %}
+                        <img src="{{ listing.image }}">
+                    {% endif %}
+                </dev>
+                {% if listing.last_bid %}
+                <h2>Price: {{ listing.price }}</h2>
+                {% else %}
+                <h2>Last Bid: {{ listing.last_bid }}</h2>
+                {% endif %}
+                <h5>Description: {{ listing.description }}</h5>
+                <h6>Category: {{ listing.category }}</h6>
+                
+            </a>
+            <form action="{% url 'remove_wl' %}">
+                {% csrf_token %}
+                <input type="hidden" value="{{ listing.id }}" name="watchlist">
+                <input type="submit" value="remove">
+            </form>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
